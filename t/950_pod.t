@@ -1,5 +1,13 @@
 #!/usr/bin/perl
 
+BEGIN {
+    unless ($ENV {AUTHOR_TESTING}) {
+        print "1..0 # SKIP AUTHOR test\n";
+        exit;
+    }
+}
+
+
 use Test::More;
 
 use strict;
