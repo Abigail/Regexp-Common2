@@ -44,15 +44,12 @@ my $REF_OTHER  =  6;
 sub __ref ($thingy) {
     my $reftype = reftype $thingy;
 
-    $reftype or return $STRING;
-
-    if ($reftype eq "SCALAR") {
-        return ref ($thingy) eq 'Regexp' ? $REGEXP : $REF_SCALAR;
-    }
-
-    return $REF_CODE   if $reftype eq "CODE";
-    return $REF_HASH   if $reftype eq "HASH";
-    return $REF_ARRAY  if $reftype eq "ARRAY";
+    return $STRING     if !$reftype;
+    return $REGEXP     if  $reftype eq "REGEXP";
+    return $REF_CODE   if  $reftype eq "CODE";
+    return $REF_HASH   if  $reftype eq "HASH";
+    return $REF_ARRAY  if  $reftype eq "ARRAY";
+    return $REF_SCALAR if  $reftype eq "SCALAR";
 
     return $REF_OTHER;
 }
