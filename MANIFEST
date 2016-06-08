@@ -3,5 +3,6 @@ Makefile.PL
 MANIFEST
 t/000_basic.t
 t/101_simple.t
+t/201_parse.t
 Changes
 README

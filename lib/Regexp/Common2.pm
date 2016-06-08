@@ -157,7 +157,8 @@ sub RE ($name, %args) {
 # Work needs to be done here!
 #
 sub parse_keep ($pattern, $keep) {
-    $pattern;
+    $pattern =~ s {\(\?k (?: <([^>]+)> )? :}
+                  {$keep ? defined $1 ? "(?<$1>" : "(" : "(?:"}xegr;
 }
 
 1;
