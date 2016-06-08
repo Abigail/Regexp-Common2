@@ -12,13 +12,37 @@ use Test::More 0.88;
 
 our $r = eval "require Test::NoWarnings; 1";
 
-pattern "Test::1",
-        -pattern => 'foo';
+{
+    pattern "Test::1",
+            -pattern => 'foo';
 
 
-my $pat = RE "Test::1";
+    my $pat = RE "Test::1";
 
-is $pat, 'foo', "Set and retrieved pattern";
+    is $pat, 'foo', "Set and retrieved string pattern";
+}
+
+
+{
+    pattern "Test::2",
+            -pattern => qr /foo/;
+
+
+    my $pat = RE "Test::2";
+
+    is $pat, '(?^:foo)', "Set and retrieved regex pattern";
+}
+
+
+{
+    pattern "Test::3",
+            -pattern => sub {"foo"};
+
+
+    my $pat = RE "Test::3";
+
+    is $pat, 'foo', "Set and retrieved pattern via code ref";
+}
 
 
 Test::NoWarnings::had_no_warnings () if $r;
