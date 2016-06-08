@@ -1,12 +1,67 @@
 package Regexp::Common2;
 
-use 5.010;
+use 5.20.0;
 use strict;
 use warnings;
 no  warnings 'syntax';
 
-our $VERSION = '2016060801';
+use feature  'signatures';
+no  warnings 'experimental::signatures';
 
+use Exporter ();
+
+our @ISA       = qw [Exporter];
+our @EXPORT_OK = qw [pattern RE];
+
+our $VERSION   = '2016060801';
+
+my $CACHE = { };
+
+#
+# Takes the following arguments:
+#    + Name of pattern
+#    + -pattern:      string, regexp or sub returning pattern (required)
+#    + -pattern_keep: string, regexp or sub returning pattern (optional)
+#    + -version:      minimal perl version required for pattern
+#    + -config:       configuration parameters, and their default values
+#    + -extra_args:   extra arguments passed to a pattern sub
+#
+sub pattern ($name, %args) {
+    my $pattern = $args {-pattern} // die "A -pattern argument is required.\n";
+
+    my $cache;
+
+    unless (!ref ($pattern)            ||
+             ref ($pattern) eq "CODE"  ||
+             ref ($pattern) eq "Regexp") {
+        die "Value for -pattern must be string, regexp or coderef\n";
+    }
+
+    $$cache {pattern} = $pattern;
+
+
+    if (exists $args {-pattern_keep}) {
+        my $pattern_keep = $args {-pattern_keep};
+        unless (!ref ($pattern)            ||
+                 ref ($pattern) eq "CODE"  ||
+                 ref ($pattern) eq "Regexp") {
+            die "Value for -pattern_keep must be string, regexp or coderef\n";
+        }
+        $$cache {pattern_keep} = $pattern_keep;
+    }
+    else {
+        $$cache {pattern_keep} = $$cache {pattern};
+    }
+
+    #
+    # If a version is given. compare it with the current version of Perl.
+    # Return if the current Perl is too old.
+    #
+    if (my $version = $args {-version}) {
+        return if $version =~ /^5\.([0-9]+)$/ &&
+                  $version > $];
+    }
+}
 
 1;
 
