@@ -5,6 +5,8 @@ use strict;
 use warnings;
 no  warnings 'syntax';
 
+use Scalar::Util 'reftype';
+
 use feature  'signatures';
 no  warnings 'experimental::signatures';
 
@@ -15,7 +17,45 @@ our @EXPORT_OK = qw [pattern RE];
 
 our $VERSION   = '2016060801';
 
+sub parse_keep;
+
 my $CACHE = { };
+
+#
+# Indexes
+#
+my $PATTERN      = 0;
+my $PATTERN_KEEP = 1;
+my $CONFIG       = 2;
+my $EXTRA_ARGS   = 3;
+
+
+#
+# Types
+#
+my $STRING     =  0;
+my $REGEXP     =  1;
+my $REF_SCALAR =  2;
+my $REF_CODE   =  3;
+my $REF_HASH   =  4;
+my $REF_ARRAY  =  5;
+my $REF_OTHER  =  6;
+
+sub __ref ($thingy) {
+    my $reftype = reftype $thingy;
+
+    $reftype or return $STRING;
+
+    if ($reftype eq "SCALAR") {
+        return ref ($thingy) eq 'Regexp' ? $REGEXP : $REF_SCALAR;
+    }
+
+    return $REF_CODE   if $reftype eq "CODE";
+    return $REF_HASH   if $reftype eq "HASH";
+    return $REF_ARRAY  if $reftype eq "ARRAY";
+
+    return $REF_OTHER;
+}
 
 #
 # Takes the following arguments:
@@ -29,30 +69,6 @@ my $CACHE = { };
 sub pattern ($name, %args) {
     my $pattern = $args {-pattern} // die "A -pattern argument is required.\n";
 
-    my $cache;
-
-    unless (!ref ($pattern)            ||
-             ref ($pattern) eq "CODE"  ||
-             ref ($pattern) eq "Regexp") {
-        die "Value for -pattern must be string, regexp or coderef\n";
-    }
-
-    $$cache {pattern} = $pattern;
-
-
-    if (exists $args {-pattern_keep}) {
-        my $pattern_keep = $args {-pattern_keep};
-        unless (!ref ($pattern)            ||
-                 ref ($pattern) eq "CODE"  ||
-                 ref ($pattern) eq "Regexp") {
-            die "Value for -pattern_keep must be string, regexp or coderef\n";
-        }
-        $$cache {pattern_keep} = $pattern_keep;
-    }
-    else {
-        $$cache {pattern_keep} = $$cache {pattern};
-    }
-
     #
     # If a version is given. compare it with the current version of Perl.
     # Return if the current Perl is too old.
@@ -61,6 +77,90 @@ sub pattern ($name, %args) {
         return if $version =~ /^5\.([0-9]+)$/ &&
                   $version > $];
     }
+
+    my $cache;
+
+    #
+    # Check whether -pattern and -pattern_keep have valid types.
+    #
+    my $pat_ref = __ref $pattern;
+    die "Value for -pattern must be string, regexp or coderef\n"
+         unless $pat_ref   ==  $STRING   ||
+                $pat_ref   ==  $REF_CODE ||
+                $pat_ref   ==  $REGEXP;
+
+    $$cache [$PATTERN] = $pattern;
+
+
+    if (exists $args {-pattern_keep}) {
+        my $pat_ref = $args {-pattern_keep};
+        die "Value for -pattern_keep must be string, regexp or coderef\n"
+             unless $pat_ref   ==  $STRING   ||
+                    $pat_ref   ==  $REF_CODE ||
+                    $pat_ref   ==  $REGEXP;
+        $$cache [$PATTERN_KEEP] = $args {-pattern_keep};
+    }
+    else {
+        $$cache [$PATTERN_KEEP] = $$cache [$PATTERN];
+    }
+
+
+    #
+    # -config & -extra_args should be hashrefs; if not, store empty hashrefs.
+    #
+    $$cache [$CONFIG]     = $args {-config}      &&
+                     __ref ($args {-config})     == $REF_HASH
+                          ? $args {-config} : { };
+
+    $$cache [$EXTRA_ARGS] = $args {-extra_args}  &&
+                     __ref ($args {-extra_args}) == $REF_HASH
+                          ? $args {-extra_args} : { };
+
+    $$CACHE {$name} = $cache;
+}
+
+
+
+#
+# Retrieve a pattern
+#
+sub RE ($name, %args) {
+    my $cache = $$CACHE {$name} // die "No pattern named '$name' is known.\n";
+
+    #
+    # Grab the global parameters
+    #
+    my $keep             = delete $args {-Keep};
+    my $anchor           = delete $args {-Anchor};
+    my $case_insensitive = delete $args {-I};
+
+    my $pattern = $$cache [$keep ? $PATTERN_KEEP : $PATTERN];
+
+    my $ref = __ref $pattern;
+    if ($ref == $REF_CODE) {
+        $pattern = $pattern -> (%{$$cache [$CONFIG]},
+                                %args,
+                                %{$$cache [$EXTRA_ARGS]});
+        $ref = __ref $pattern;
+
+        die "Returned pattern for $name must be string on regexp\n"
+             unless $ref == $STRING ||
+                    $ref == $REGEXP;
+    }
+
+    $pattern = parse_keep $pattern, $keep if $ref == $STRING;
+
+    # Deal with $anchor and $case_insenstive here
+
+    return $pattern;
+}
+
+
+#
+# Work needs to be done here!
+#
+sub parse_keep ($pattern, $keep) {
+    $pattern;
 }
 
 1;

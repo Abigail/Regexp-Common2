@@ -2,5 +2,6 @@ lib/Regexp/Common2.pm
 Makefile.PL
 MANIFEST
 t/000_basic.t
+t/101_simple.t
 Changes
 README
