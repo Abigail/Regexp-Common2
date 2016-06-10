@@ -41,6 +41,21 @@ our $r = eval "require Test::NoWarnings; 1";
 }
 
 
+{
+    pattern "Test::parse::3",
+            -pattern => "(?k<bar>:foo)(?k:baz)",
+    ;
+
+
+    my $pat1 = RE "Test::parse::3";
+    my $pat2 = RE "Test::parse::3", -Keep => 1;
+
+    is $pat1, '(?:foo)(?:baz)',   "Parsed (?k<bar>:)(?k:) to (?:)(?:)";
+    is $pat2, '(?<bar>foo)(baz)', "Parsed (?k<bar>:)(?k:) to (?<bar>)()";
+}
+
+
+
 Test::NoWarnings::had_no_warnings () if $r;
 
 done_testing;
