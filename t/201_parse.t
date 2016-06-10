@@ -55,6 +55,20 @@ our $r = eval "require Test::NoWarnings; 1";
 }
 
 
+{
+    pattern "Test::parse::4",
+            -pattern => "(?k<bar>:(?k:foo))(?k:(?k<qux>:baz))",
+    ;
+
+
+    my $pat1 = RE "Test::parse::4";
+    my $pat2 = RE "Test::parse::4", -Keep => 1;
+
+    is $pat1, '(?:(?:foo))(?:(?:baz))',     "Parsed nested captures";
+    is $pat2, '(?<bar>(foo))((?<qux>baz))', "Parsed nested captures";
+}
+
+
 
 Test::NoWarnings::had_no_warnings () if $r;
 
