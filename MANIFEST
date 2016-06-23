@@ -4,5 +4,6 @@ MANIFEST
 t/000_basic.t
 t/101_simple.t
 t/201_parse.t
+t/211_keep_pattern.t
 Changes
 README

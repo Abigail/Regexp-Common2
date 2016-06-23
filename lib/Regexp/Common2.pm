@@ -90,7 +90,7 @@ sub pattern ($name, %args) {
 
 
     if (exists $args {-pattern_keep}) {
-        my $pat_ref = $args {-pattern_keep};
+        my $pat_ref = __ref $args {-pattern_keep};
         die "Value for -pattern_keep must be string, regexp or coderef\n"
              unless $pat_ref   ==  $STRING   ||
                     $pat_ref   ==  $REF_CODE ||
