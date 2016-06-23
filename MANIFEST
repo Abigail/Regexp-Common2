@@ -1,9 +1,9 @@
 lib/Regexp/Common2.pm
 Makefile.PL
 MANIFEST
-t/000_basic.t
-t/101_simple.t
-t/201_parse.t
-t/211_keep_pattern.t
+t/000-basic.t
+t/101-simple.t
+t/201-parse.t
+t/211-keep_pattern.t
 Changes
 README
