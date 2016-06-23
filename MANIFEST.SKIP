@@ -7,3 +7,4 @@ t/960-pod-coverage.t
 t/980-versions.t
 t/981-permissions.t
 t/982-git.t
+t/990-ascii.t
