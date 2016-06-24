@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
-use Test::More 0.88;
-
 use strict;
 use warnings;
 no  warnings 'syntax';
+
+use Test::More 0.88;
+
 
 unless ($ENV {AUTHOR_TESTING}) {
     plan skip_all => "AUTHOR tests";

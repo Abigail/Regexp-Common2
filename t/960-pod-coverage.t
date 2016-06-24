@@ -1,17 +1,16 @@
 #!/usr/bin/perl
 
-BEGIN {
-    unless ($ENV {AUTHOR_TESTING}) {
-        print "1..0 # SKIP AUTHOR test\n";
-        exit;
-    }
-}
-
-use Test::More;
-
 use strict;
 use warnings;
 no  warnings 'syntax';
+
+use Test::More;
+
+
+unless ($ENV {AUTHOR_TESTING}) {
+    plan skip_all => "AUTHOR tests";
+    exit;
+}
 
 eval "use Test::Pod::Coverage 1.00; 1" or
       plan skip_all => "Test::Pod::Coverage required for testing POD coverage";

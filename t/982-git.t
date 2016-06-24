@@ -1,17 +1,11 @@
 #!/usr/bin/perl
 
-BEGIN {
-    unless ($ENV {AUTHOR_TESTING}) {
-        print "1..0 # SKIP AUTHOR test\n";
-        exit;
-    }
-}
-
-use Test::More 0.88;
-
 use strict;
 use warnings;
 no  warnings 'syntax';
+
+use Test::More 0.88;
+
 
 unless ($ENV {AUTHOR_TESTING}) {
     plan skip_all => "AUTHOR tests";
