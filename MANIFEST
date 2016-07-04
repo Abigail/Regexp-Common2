@@ -5,5 +5,6 @@ t/000-basic.t
 t/101-simple.t
 t/201-parse.t
 t/211-keep_pattern.t
+t/301-pattern_sub.t
 Changes
 README
