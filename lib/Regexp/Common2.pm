@@ -131,10 +131,24 @@ sub RE ($name, %args) {
     my $anchor           = delete $args {-Anchor};
     my $case_insensitive = delete $args {-I};
 
+
     my $pattern = $$cache [$keep ? $PATTERN_KEEP : $PATTERN];
+
 
     my $ref = __ref $pattern;
     if ($ref == $REF_CODE) {
+        #
+        # Clean unknown arguments
+        #
+        foreach my $key (keys %args) {
+            unless (exists $$cache [$CONFIG] {$key}) {
+                require Carp;
+                Carp::carp ("Ignoring unknown parameter '$key' for " .
+                            "pattern $name");
+                delete $args {$key};
+            }
+        }
+
         $pattern = $pattern -> (%{$$cache [$CONFIG]},
                                 %args,
                                 %{$$cache [$EXTRA_ARGS]});
