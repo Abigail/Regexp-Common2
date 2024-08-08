@@ -7,8 +7,8 @@ no  warnings 'syntax';
 use Test::More 0.88;
 
 
-unless ($ENV {AUTHOR_TESTING}) {
-    plan skip_all => "AUTHOR tests";
+unless ($ENV {RELEASE_TESTING}) {
+    plan skip_all => "RELEASE tests";
     exit;
 }
 
